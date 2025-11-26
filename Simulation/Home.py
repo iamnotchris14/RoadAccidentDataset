@@ -1,31 +1,77 @@
 import streamlit as st
 import pandas as pd
+import base64
 
-# --- Global Role Selector (Sidebar) ---
+# -------------------------------
+# FUNCTION: Set Background Image
+# -------------------------------
+def set_bg(url):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("{url}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+
+        /* Make text readable */
+        .block-container {{
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2rem;
+            border-radius: 12px;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+driver_bg = "https://images.wallpaperscraft.com/image/single/roads_bridge_crossroads_345975_1280x720.jpg"
+gov_bg = "https://images7.alphacoders.com/742/thumb-1920-742786.jpg"
+emergency_bg = "https://t4.ftcdn.net/jpg/07/07/02/79/360_F_707027965_o1Nawl8IUYvBowX2BWbJBO8lAyHtkuIa.jpg"
+
+# ==============================Centred Title Function===============================
+def center_text(text, size=30, weight="bold"):
+    st.markdown(
+        f"<h1 style='text-align:center; font-size:{size}px; font-weight:{weight};'>{text}</h1>",
+        unsafe_allow_html=True
+    )
+
+# --- Remember selected role in session_state ---
+if "role" not in st.session_state:
+    st.session_state["role"] = "Driver"   # default role
+
+# (Optional) keep a sidebar label, but use session_state
 st.sidebar.title("User Role")
+# Sidebar role selector
 role = st.sidebar.selectbox(
     "Select your role:",
-    ["Driver", "Government", "Police/Hospital", "Researcher"]
+    ["Driver", "Government", "Emergency Responder"]
 )
+st.session_state["role"] = role
+
+# Use this everywhere below
+role = st.session_state["role"]
 
 # --- Page Title ---
-st.title("🚦 Traffic Accident Dashboard - Home")
+center_text("", size=20)
+center_text("🚦Traffic Accident Risk Dashboard", size=50)
+center_text("Home", size=30)
 st.write(f"Welcome, **{role}** 👋")
 
 # --- Intro content (lightly tailored) ---
 if role == "Driver":
+    set_bg(driver_bg)
     st.info("This dashboard helps you understand accident risk on your routes and time of travel.")
 elif role == "Government":
     st.info("Visualize accident hotspots and long-term safety patterns to support policy decisions.")
-elif role == "Police/Hospital":
+elif role == "Emergency Responder":
     st.info("Monitor high-risk hours and zones to optimize patrols and emergency response.")
-elif role == "Researcher":
-    st.info("Explore traffic datasets, trends, and model performance for deeper insights.")
 
 st.write("Use the sidebar to navigate to other pages: Analysis or Prediction.")
 
-
-# --- Load Dataset ---
+# ====================================================Load Dataset=============================================================
 df = pd.read_csv("road_accident_dataset.csv")
 
 
@@ -47,10 +93,9 @@ resp_severity_pattern = f"{severe_share * 100:.1f}% severe crashes"
 resp_fatal_hotspot = df.groupby("Region")["Number of Fatalities"].sum().idxmax()
 
 
-#driver page
+#========================================================driver page=============================================================
 if role == "Driver":
 
-    st.image("Simulation/images/omw.gif", caption="Your POV on the road", width="stretch")
 
     # 📊 Interactive chart area
     st.markdown("#### What our dataset shows?")
@@ -149,7 +194,7 @@ if role == "Driver":
     )
 
     st.markdown("---")
-    st.image("Simulation/images/friends-hug.gif", width="stretch")
+    st.image("images/friends-hug.gif", use_container_width=True)
     st.markdown(
     "**❤️ Why this matters:**\n"
     "Every decision you make on the road—whether to accelerate, check your phone, or push through fatigue—"
@@ -160,9 +205,10 @@ if role == "Driver":
 )
 
 
-#government page
+#--------------------------------------------------------------------government page----------------------------------------------------------------------
 elif role == "Government":
-    st.image("Simulation/images/government.gif", width="stretch")
+    set_bg(gov_bg)
+    st.image("images/government.gif", use_container_width=True)
     st.markdown("#### What our dataset shows?")
     st.markdown(
         "Use the selector below to see how crashes are distributed by **region**, **road type**, "
@@ -272,10 +318,12 @@ elif role == "Government":
     "entire communities."
 )
 
-#emergency responder page
-elif role == "Police/Hospital":
+#--------------------------------------------------------------------------emergency responder page-------------------------------------------------------------------
+elif role == "Emergency Responder":
+    
+    set_bg(emergency_bg)
 
-    st.image("Simulation/images/ambulance.gif", width="stretch")
+    st.image("images/ambulance.gif", use_container_width=True)
     st.markdown("#### What our dataset shows?")
     st.markdown(
         "Use the selector below to explore how incidents vary by **time of day**, **severity**, or **region**."
