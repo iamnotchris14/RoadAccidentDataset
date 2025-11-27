@@ -95,8 +95,8 @@ resp_fatal_hotspot = df.groupby("Region")["Number of Fatalities"].sum().idxmax()
 
 #========================================================driver page=============================================================
 if role == "Driver":
-
-
+    
+    st.image("images/omw.gif", caption="Your POV on the road", width="stretch")
     # 📊 Interactive chart area
     st.markdown("#### What our dataset shows?")
     st.markdown(

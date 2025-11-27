@@ -46,7 +46,7 @@ emergency_bg = "https://t4.ftcdn.net/jpg/07/07/02/79/360_F_707027965_o1Nawl8IUYv
 # Load global role (from sidebar in Home.py)
 # -----------------------------------------------
 role = st.session_state.get("role", "Driver")
-df = pd.read_csv(r"C:\Users\syirahanis\OneDrive\Documents\GitHub\RoadAccidentDataset\road_accident_dataset.csv")
+df = pd.read_csv("road_accident_dataset.csv")
 
 # =======================================================
 # DRIVER ANALYSIS
