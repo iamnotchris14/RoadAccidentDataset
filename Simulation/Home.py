@@ -214,6 +214,77 @@ if role == "Driver":
 
 
     st.markdown("---")
+    st.markdown("#### News Report for Awareness")
+    st.markdown("""
+    Between **1913 and 2023**, the number of motor-vehicle deaths in the United States  
+    (which include passenger cars, trucks, buses, and motorcycles) **increased by 966%** —  
+    from **4,200 deaths** in 1913 to **44,762 deaths** in 2023.
+
+    However, the role of cars in daily life has changed drastically:
+
+    - In **1913**, there were only **1.3 million vehicles** and **2 million drivers**.  
+    Miles driven annually was not yet estimated.
+    - In **2023**, the U.S. recorded:
+    - **284.6 million vehicles**
+    - **238 million licensed drivers**
+    - **3,247 billion miles** driven annually
+
+    Despite the increase in total fatalities, **exposure levels** (vehicles, drivers, miles driven) have changed so dramatically that the **risk per mile, per driver, and per vehicle has dropped significantly** over time.
+    """)
+
+    st.image("images/deathandpop.JPG", use_container_width=False)
+    st.image("images/deathMVrates.JPG", use_container_width=False)
+
+    st.markdown("""
+    By all measures, motor-vehicle safety has vastly improved since the early 1900s. Driver attitudes and behaviors have changed substantially, as has vehicle safety technology, which makes car travel safer.
+
+    The population motor-vehicle death rate reached its peak in **1937** with **30.8 deaths per 100,000 population**.  
+    The current rate is **13.4 per 100,000**, representing a **56% improvement**.
+
+    In **1913**, **33.38 people** died for every **10,000 vehicles** on the road.  
+    In **2023**, the death rate was **1.57 per 10,000 vehicles** — a **95% improvement**.
+
+    In **1923**, the first year miles driven was estimated, the motor-vehicle death rate was **18.65 deaths per 100 million miles driven**.  
+    Since 1923, the mileage death rate has decreased **93%** and now stands at **1.38 deaths per 100 million miles driven**.
+    """)
+    st.markdown("""
+    <style>
+    /* Make expander background white */
+    .streamlit-expanderHeader, .streamlit-expanderContent {
+        background-color: white !important;
+        color: black !important;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    /* Optional: remove grey shadows */
+    details {
+        background-color: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    with st.expander("Death Rates from 2019-2023"):
+        st.markdown(
+    """
+    Despite these historic drops, we cannot remain complacent.
+
+    ### Changes from 2019 to 2023:
+    - **Vehicle death rate:** Increased by **11.3%**
+    - **Mileage death rate:** Increased by **15.0%**
+    - **Population death rate:** Increased by **12.6%**
+    """
+    )
+    st.markdown("""
+    **Source:**  
+    Deaths are from the *National Center for Health Statistics (NCHS)*, except 1964, which are *National Safety Council (NSC)* estimates based on data from the *National Highway Traffic Safety Administration’s (NHTSA) Fatality Analysis Reporting System (FARS)*.  
+
+    See Technical Appendix for comparability. Motor-vehicle registrations, mileage, and drivers are estimated by the *Federal Highway Administration*.
+
+    [Read more here](https://injuryfacts.nsc.org/motor-vehicle/historical-fatality-trends/deaths-and-rates/)
+    """)
+
+
+    st.markdown("---")
     st.markdown("#### 💡 Key Takeaways")
     st.markdown(
         f"- Treat **{driver_peak_time}** as a **high-alert window**, even if the weather seems fine, as some drivers tend to speed in main roads. \n"
