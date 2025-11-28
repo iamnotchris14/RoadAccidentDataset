@@ -4,7 +4,6 @@ import joblib
 import plotly.graph_objects as go
 import math
 import numpy as np
-
 # -------------------------------
 # FUNCTION: Set Background Image
 # -------------------------------
@@ -46,6 +45,18 @@ chunks = pd.read_csv(
 )
 
 df = pd.concat(chunks, ignore_index=True)
+
+# ================== ROLE HANDLING (FOLLOW HOME LOGIC) ==================
+if "role" not in st.session_state:
+    st.session_state["role"] = "Driver"
+
+st.sidebar.title("User Role")
+role = st.sidebar.selectbox(
+    "Select your role:",
+    ["Driver", "Government", "Emergency Responder"],
+    index=["Driver", "Government", "Emergency Responder"].index(st.session_state["role"])
+)
+st.session_state["role"] = role
 
 # Load saved ML models
 # DRIVER
