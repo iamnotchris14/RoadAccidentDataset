@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import base64
 import altair as alt
+import plotly.express as px
+import plotly.graph_objects as go
 
 # -------------------------------
 # FUNCTION: Set Background Image
@@ -232,8 +234,113 @@ if role == "Driver":
     Despite the increase in total fatalities, **exposure levels** (vehicles, drivers, miles driven) have changed so dramatically that the **risk per mile, per driver, and per vehicle has dropped significantly** over time.
     """)
 
-    st.image("images/deathandpop.JPG", use_container_width=False)
-    st.image("images/deathMVrates.JPG", use_container_width=False)
+    df = pd.read_csv("deaths-and-population-ra.csv")
+    df2 = pd.read_csv("deaths-and-mv-rates-1913.csv")
+
+#------------------------------------------death&poprates------------------------------------------------------------------------------
+    fig = go.Figure()
+
+    # Line 1 — Number of deaths
+    fig.add_trace(go.Scatter(
+    x=df["Category"],  # <-- Year column
+    y=df["Number of deaths"],
+    mode="lines",
+    name="Number of deaths",
+    line=dict(color="#006400", width=3)
+))
+
+    # Line 2 — Rate per 100,000 population
+    fig.add_trace(go.Scatter(
+    x=df["Category"],  # <-- Year column
+    y=df["Rate per 100,000 population"],
+    mode="lines",
+    name="Rate per 100,000 population",
+    yaxis="y2",
+    line=dict(color="#87CEEB", width=3)
+))
+
+    # Layout with two y-axes
+    fig.update_layout(
+    title="Deaths and Population Rates, 1913–2023",
+    xaxis=dict(title="Year"),
+
+    yaxis=dict(
+        title="Number of deaths",
+        range=[0, df["Number of deaths"].max() * 1.1]
+    ),
+    yaxis2=dict(
+        title="Rate per 100,000 population",
+        overlaying="y",
+        side="right",
+        range=[0, df["Rate per 100,000 population"].max() * 1.1]
+    ),
+
+    hovermode="x unified",
+    legend=dict(x=0, y=-0.2, orientation="h")
+)
+
+    st.plotly_chart(fig, use_container_width=True)
+#----------------------------------------------------death&mvrates----------------------------------------------------------------------------------
+    fig = go.Figure()
+
+# Line 1 — Number of deaths
+    fig.add_trace(go.Scatter(
+    x=df2["Category"],
+    y=df2["Number of deaths"],
+    mode="lines",
+    name="Number of deaths",
+    line=dict(color="#006400", width=3)
+))
+
+# Line 2 — Rate per 100M miles (right axis)
+    fig.add_trace(go.Scatter(
+    x=df2["Category"],
+    y=df2["Rate per 100,000,000 vehicle miles"],
+    mode="lines",
+    name="Rate per 100M miles",
+    yaxis="y2",
+    line=dict(color="#FF8C00", width=3)
+))
+
+# Line 3 — Rate per 10k motor vehicles (right axis)
+    fig.add_trace(go.Scatter(
+    x=df2["Category"],
+    y=df2["Rate Per 10,000 motor vehicles"],
+    mode="lines",
+    name="Rate per 10k vehicles",
+    yaxis="y2",
+    line=dict(color="#1E90FF", width=3, dash="dash")
+))
+
+    fig.update_layout(
+    title="Deaths and Motor-Vehicle Rates (1913–2023)",
+    xaxis=dict(title="Year"),
+
+    # Left axis
+    yaxis=dict(
+        title="Number of deaths",
+        range=[0, df2["Number of deaths"].max() * 1.1]
+    ),
+
+    # Right axis
+    yaxis2=dict(
+        title="Rates",
+        overlaying="y",
+        side="right",
+        range=[
+            0,
+            max(
+                df2["Rate per 100,000,000 vehicle miles"].max(),
+                df2["Rate Per 10,000 motor vehicles"].max()
+            ) * 1.1
+        ]
+    ),
+
+    hovermode="x unified",
+    legend=dict(x=0, y=-0.2, orientation="h")
+)
+
+    st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
     By all measures, motor-vehicle safety has vastly improved since the early 1900s. Driver attitudes and behaviors have changed substantially, as has vehicle safety technology, which makes car travel safer.
