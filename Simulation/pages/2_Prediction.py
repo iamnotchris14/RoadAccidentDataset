@@ -48,17 +48,21 @@ chunks = pd.read_csv(
 df = pd.concat(chunks, ignore_index=True)
 
 # Load saved ML models
-driver_model = joblib.load("driver_model.pkl")
-driver_encoders = joblib.load("driver_encoders.pkl")
-driver_features = joblib.load("driver_features.pkl")
+# DRIVER
+driver_model = joblib.load("trainedModel/driver_model_compressed.pkl")
+driver_encoders = joblib.load("trainedModel/driver_encoders_compressed.pkl")
+driver_features = joblib.load("trainedModel/driver_features_compressed.pkl")
 
-government_model = joblib.load("government_model.pkl")
-government_encoders = joblib.load("government_encoders.pkl")
-government_features = joblib.load("government_features.pkl") 
+# GOVERNMENT
+government_model = joblib.load("trainedModel/government_model_compressed.pkl")
+government_encoders = joblib.load("trainedModel/government_encoders_compressed.pkl")
+government_features = joblib.load("trainedModel/government_features_compressed.pkl")
 
-responder_model = joblib.load("responder_model.pkl")
-responder_encoders = joblib.load("responder_encoders.pkl")
-responder_features = joblib.load("responder_features.pkl")
+# RESPONDER
+responder_model = joblib.load("trainedModel/responder_model_compressed.pkl")
+responder_encoders = joblib.load("trainedModel/responder_encoders_compressed.pkl")
+responder_features = joblib.load("trainedModel/responder_features_compressed.pkl")
+
 
 # -----------------------------------------------
 # Load global role (from sidebar in Home.py)
