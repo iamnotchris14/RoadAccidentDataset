@@ -98,18 +98,13 @@ center_text("🚦 Traffic Accident Risk Dashboard", size=40)
 center_text("Analysis", size=28)
 st.markdown("---")
 
-# If user picks other role, gently tell them this page is for drivers only (for now)
+#=================== ROLE-BASED ACCESS CONTROL ==================#
 if role != "Driver":
     # set appropriate background so whole app still looks consistent
     if role == "Government":
         set_bg(gov_bg)
     else:
         set_bg(emergency_bg)
-
-    st.info(
-        "This page currently shows the **Driver** analysis view only. "
-        "Please select **Driver** in the sidebar to explore this analysis."
-    )
     st.stop()
 
 # If we reach here, role is Driver
@@ -134,9 +129,9 @@ with mid:
 )
 st.markdown("---")
 
-# =====================================================================
-# 1️⃣ Accident Distribution by Time of Day – Donut Chart
-# =====================================================================
+# ==================================================================================================================================================
+# 1️. Accident Distribution by Time of Day – Donut Chart
+# ==================================================================================================================================================
 
 center_text("Accident Distribution by Time of Day", size=30)
 def driver_analysis_page(df):
@@ -160,6 +155,7 @@ time_counts = (
         .rename(columns={"index": "Time of Day"})
     )
 total_cases = time_counts["Count"].sum()
+
 # For quick lookup of percentages
 emoji_map = (time_counts.set_index("Time of Day")["Count"] / total_cases * 100).to_dict()
 
@@ -168,10 +164,10 @@ fig = px.pie(
         time_counts,
         names="Time of Day",
         values="Count",
-        hole=0.55,                    # makes it a donut
+        hole=0.55,                    
     )
 
-# Colours similar to before (you can tweak)
+# Colours 
 fig.update_traces(
     labels=["<b>Morning</b>", "<b>Afternoon</b>", "<b>Evening</b>", "<b>Night</b>"],
     textposition="inside",
@@ -222,9 +218,9 @@ with mid:
 
 center_text("Simple truth: Accident prevention depends more on driver behaviour than the time of day.", size=20)
 st.markdown("---")
-# ================================
+# =======================================================================================================================================================================================
 # 2. Injuries vs Fatalities – Pictogram
-# ================================
+# =======================================================================================================================================================================================
 from matplotlib.patches import Circle, FancyBboxPatch
 
 center_text("Injuries vs Fatalities", size=30)
@@ -360,9 +356,11 @@ with mid:
         
 center_text("Simple truth: A small change in percentage can mean a big real-world impact", size=20)
 st.markdown("---")
-# =====================================================================
-# 3️⃣ Accident Cause Distribution – Treemap
-# =====================================================================
+
+
+# ==================================================================================================================================================
+# 3️. Accident Cause Distribution – Treemap
+# ==================================================================================================================================================
 center_text("Accident Cause Distribution", size=30)
 cause_counts = (
 df["Accident Cause"]
@@ -375,7 +373,7 @@ cause_data = pd.DataFrame({
     "Count": cause_counts.values
 })
 
-# colour palette (5 distinct pastel-ish colours – extend if more causes)
+# colour palette for the causes
 palette = ["#FFB74D", "#FF5252", "#AED581", "#4DD0E1", "#CE93D8", "#FFF176", "#FF8A65"]
 color_map = {
     cause: palette[i % len(palette)]
@@ -384,7 +382,7 @@ color_map = {
 
 fig3 = px.treemap(
     cause_data,
-    path=["Cause"],           # only one level
+    path=["Cause"],          
     values="Count",
     color="Cause",
     color_discrete_map=color_map,
