@@ -722,7 +722,7 @@ elif role == "Emergency Responder":
     """)
 
     st.markdown("""
-    **Source:** https://www.grsproadsafety.org/asia-pacific-road-safety-conference-2025-in-manila-philippines/
+    **Source:** https://www.ncbi.nlm.nih.gov/books/NBK537069/
     """)
     
     st.markdown("---")
