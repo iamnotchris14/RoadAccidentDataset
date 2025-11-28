@@ -423,16 +423,87 @@ elif role == "Government":
 
 
     st.markdown("---")
-    st.markdown("#### 💡 Key Takeaways")
-    st.markdown(
-        f"- If a region like **{resp_fatal_hotspot}** repeatedly appears as a high-fatality area, it may justify:\n"
-        "  - Junction redesign or traffic-calming measures\n"
-        "  - Improved lighting, signage, or speed management\n"
-        "  - Targeted enforcement or public education campaigns\n\n"
-        "- Comparing **road types** in the chart above can reveal whether highways, main roads, or streets "
-        "contribute most to serious outcomes.\n"
-        "- Balanced data ensures these comparisons are **fair**, not dominated by just one large or busy region."
+    st.markdown("#### News Report for Awareness")
+    st.markdown("""
+    **Asia Pacific Road Safety Conference (9–11 September 2025, Manila)**  
+    The conference was held at the Asian Development Bank Headquarters in Manila, Philippines.  
+    It was jointly organized by the **Asian Development Bank (ADB)**, **Global Road Safety Partnership (GRSP)**, **Asia-Pacific Road Safety Observatory (APRSO)**, **Bridgestone Asia Pacific**, and the **International Road Assessment Programme (iRAP)**.
+    """)
+
+    st.image("images/governmentnews.jpg", use_container_width=False)
+
+    st.markdown("""
+    Attended by 260+ participants from more than 20 countries, the Asia Pacific Road Safety Conference brought together representatives from government, international organizations, the private sector, academia, and civil society. The 3-day event explored how investing in road safety can support sustainable transport, public health, and economic development.
+    """)
+    with st.expander("Highligts from the Event"):
+        st.markdown(
+        """
+    **Featured:**
+    1. A **high-level ministerial roundtable**
+    2. **Panel discussions**
+    3. **Workshops**
+    4. **Networking sessions** for road safety practitioners
+
+    **84 speakers** from organizations such as:
+    1. Asian Development Bank (ADB)
+    2. FIA Foundation
+    3. United Nations ESCAP
+    4. iRAP
+    5. World Health Organization (WHO)
+    6. Bridgestone
+    7. GRSP
+        """
     )
+
+    with st.expander("Main Themes Discussed"):
+        st.markdown("""
+        1. Increasing **road safety investments** and securing financial commitments.
+        2. Strengthening understanding of **funding models** aligned with youth, climate, health, and economic priorities.
+        3. Encouraging collaboration across **road safety**, **finance**, and **health** sectors.
+        4. Building **capacity** in developing member countries to prepare stronger business cases for road safety funding.
+        5. Addressing key priority issues:
+            - **Powered two-wheeler safety**
+            - **Vulnerable road users**
+        6. Exploring multi-sector partnerships with **APRSO** to support long-term, sustainable road safety action.
+        """)
+
+    st.markdown("""
+    <style>
+    /* Make expander background white */
+    .streamlit-expanderHeader, .streamlit-expanderContent {
+        background-color: white !important;
+        color: black !important;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    /* Optional: remove grey shadows */
+    details {
+        background-color: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    **Source:** https://www.grsproadsafety.org/asia-pacific-road-safety-conference-2025-in-manila-philippines/
+    
+    See the Event Social Media Video [here](https://www.youtube.com/watch?v=zOwBmzbDmlA)
+    """)
+    st.markdown("---")
+    st.markdown("#### 💡 Key Takeaways for Government")
+    st.markdown(
+        f"- Regions like **{resp_fatal_hotspot}** with repeated high fatality counts should be treated as "
+        "priority zones for safety improvements, including:\n"
+        "  - Junction redesign or traffic-calming infrastructure\n"
+        "  - Better lighting, clearer signage, and stricter speed control\n"
+        "  - Focused law enforcement and behaviour-change campaigns\n\n"
+        "- Reviewing **road type patterns** helps identify where the most severe outcomes occur — whether on "
+        "highways, main roads, or smaller streets — guiding where to direct limited budget and manpower.\n\n"
+    )
+    with st.expander("What You (Goverment) Should Do Next"):
+        st.markdown("Use these patterns to prioritise one high-risk region and one "
+        "high-severity road type for targeted upgrades or enforcement planning."
+    )
+
     st.markdown(    
     "**❤️ Why this matters:**\n"
     "Every crash has economic, social, and human consequences. A single high-risk road segment can silently accumulate "
@@ -558,17 +629,117 @@ elif role == "Emergency Responder":
 
 
     st.markdown("---")
-    st.markdown("#### 💡 Key Takeaways")
+    st.markdown("#### News Report for Awareness")
+    st.markdown("""
+    Emergency medical services (EMS) have several responsibilities at the crash site, whether involving an automobile, aircraft, boat, or other types of vehicles. The key responsibilities of EMS covered in this resource include scene safety evaluation, triage coordination, prehospital medical treatment, and crash site investigation.
+    """)
+
+    st.image("images/crashsites.jpg", use_container_width=False)
+
+    with st.expander("Issues of Concern"):
+        st.markdown("""
+##  **EMS Responsibilities at a Crash Site**
+
+### **1. Scene Safety Evaluation**
+- Begins **before** EMS arrives by assessing whether it is safe to proceed.
+- Crash sites can become unsafe quickly → **continuous monitoring** required.
+- Common hazards include:
+  - Wreckage, hazardous materials, fire, fumes
+  - Environmental hazards (urban, marine, mountain, desert, winter, night)
+- Proper **protective gear** is essential; selection depends on crash scale and environment.
+- Large crash areas (e.g., aircraft crashes) may require:
+  - Radios, fire suppression tools, machinery, casualty transport equipment
+- EMS also protects:
+  - Firefighters, police, bystanders, and media personnel
+
+
+### **2. Triage**
+- Most crash sites are **mass casualty incidents**.
+- Purpose: quickly prioritize patients to avoid overwhelming resources.
+- Common issue: transporting **uninjured** first → leaves critical victims untreated.
+- No universal triage system, but **consistency within an incident is essential**.
+- Triage categories may be based on:
+  - Glasgow Coma Scale, vital signs, visible injuries
+- Categories must be **clearly marked** (colors, letters, numbers).
+- EMS leaders designate **collection points** for easier transport.
+- Patients must be **continuously monitored** as conditions may worsen.
+- Without training or a unified system:
+  - Response becomes chaotic
+  - Critically injured patients face delays
+
+
+### **3. Prehospital Medical Treatment**
+- Begins at first contact → continues until arrival at the medical facility.
+- Life-threatening injuries treated **first** (ATLS protocol).
+- Aircraft crash injury patterns:
+  - Most common: **lower extremity fractures**
+  - Also: head injuries, open wounds, organ damage, burns
+- Rotary aircraft crashes often cause **spinal injuries** → consider **c-spine immobilization**.
+- Trauma victims may have multiple injuries → requires:
+  - Thorough assessment  
+  - Stabilization for transport  
+  - Correct prioritization based on triage
+
+
+### **4. Crash Site Investigation**
+- Investigations vary by type of crash.
+- In aircraft crashes:
+  - Investigators assess events leading up to and immediately after the crash.
+  - EMS responders may provide eyewitness accounts.
+- Deceased victims are generally **left in place** unless minimal movement is required.
+- Investigators document:
+  - Passenger locations
+  - Debris movement
+  - Injury patterns
+- Findings help improve:
+  - Safety procedures  
+  - Materials  
+  - Training  
+  - Crash prevention strategies  
+
+""")
+
+
+    st.markdown("""
+    <style>
+    /* Make expander background white */
+    .streamlit-expanderHeader, .streamlit-expanderContent {
+        background-color: white !important;
+        color: black !important;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    /* Optional: remove grey shadows */
+    details {
+        background-color: white !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown("""
+    **Emergency Medical Services (EMS)** has several key responsibilities at a crash site. These include triage, patient care, and preparing victims for transport.  
+    When performed effectively, EMS response can **maximize lives saved** and **reduce injury severity (morbidity)**.
+    """)
+
+    st.markdown("""
+    **Source:** https://www.grsproadsafety.org/asia-pacific-road-safety-conference-2025-in-manila-philippines/
+    """)
+    
+    st.markdown("---")
+    st.markdown("#### 💡 Key Takeaways for EMS")
     st.markdown(
-        f"- If **{resp_peak_time}** is a high-demand period, consider:\n"
-        "  - Increasing patrol visibility or ambulance coverage during that window\n"
-        "  - Ensuring key hospitals are prepared for a possible surge of trauma cases\n"
-        f"- Regions like **{resp_fatal_hotspot}** with more fatalities may benefit from:\n"
-        "  - Closer ambulance staging points\n"
-        "  - Faster routing protocols\n"
-        "  - Coordination drills between police, EMS, and hospitals\n\n"
-        "Balanced data lets you practice reading these patterns and imagining how deployment could adapt."
+        f"- The peak incident time, **{resp_peak_time}**, represents a predictable surge in service demand. "
+        "Shift planning, patrol timing, and ambulance staging should be aligned with this pattern to reduce "
+        "response delays.\n"
+        f"- Regions like **{resp_fatal_hotspot}** with high fatality counts may require closer ambulance "
+        "posts, dedicated trauma-capable routing, and stronger police visibility.\n"
+        f"- The share of severe crashes (**{resp_severity_pattern}**) highlights the importance of trauma "
+        "readiness, rapid transport, and coordinated communication between police, EMS, and hospitals.\n\n"
     )
+    with st.expander("What You (EMS) Should Do Next"):
+        st.markdown("Review deployment plans for peak-risk hours, strengthen coordination "
+        "protocols in high-fatality regions, and ensure that hospital and EMS teams are prepared for a potential "
+        "surge during the time windows where severe crashes are most likely.")
 
     st.markdown(    
     "**❤️ Why this matters:**\n"
