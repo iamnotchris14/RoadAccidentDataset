@@ -809,7 +809,7 @@ def emergency_page(df: pd.DataFrame):
         st.plotly_chart(fig_choro, use_container_width=True)
         
     with st.expander("**Interpretation**"):
-        st.write(
+         st.write(
                 "- The map visualises the **average accident severity** across countries using a clear colour gradient.\n"
                 "- **Green areas** represent **low average severity**, where most accidents are minor.\n"
                 "- **Yellow areas** indicate **moderate severity**, suggesting a mix of minor and more serious crashes.\n"
