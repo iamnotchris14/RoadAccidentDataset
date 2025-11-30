@@ -109,11 +109,11 @@ def driver_page(df: pd.DataFrame):
     # ================================================================
     # 1. Accident Distribution by Time of Day – Donut Chart
     # ================================================================
+    st.markdown("---")
     center_text("Accident Distribution by Time of Day", size=30)
-    center_text("This section analyses traffic accident data to uncover patterns.", size=20)
 
 
-    #st.markdown("This section analyses traffic accident data to uncover patterns.")
+    
 
     time_order = ["Morning", "Afternoon", "Evening", "Night"]
     df["Time of Day"] = pd.Categorical(df["Time of Day"], categories=time_order, ordered=True)
@@ -167,7 +167,7 @@ def driver_page(df: pd.DataFrame):
             )
 
     center_text("Simple truth: Safe driving matters more than time of day.", size=20)
-    #st.markdown("---")
+    st.markdown("---")
 
     # ================================================================
     # 2. Injuries vs Fatalities – Pictogram
@@ -181,10 +181,13 @@ def driver_page(df: pd.DataFrame):
     p_inj = round(injuries / total_people * 100, 1)
     p_fat = round(fatalities / total_people * 100, 1)
 
-    
-    m1, m2 = st.columns([1, 1])
-    m1.metric("**Total Injuries**", f"{injuries:,}")
-    m2.metric("**Total Fatalities**", f"{fatalities:,}")
+    left, mid1, mid2, right = st.columns([1.5, 2, 2, 1])
+
+    with mid1:
+        st.metric("**Total Injuries**", f"{injuries:,}")
+
+    with mid2:
+        st.metric("**Total Fatalities**", f"{fatalities:,}")
 
     
     st.caption("**Move the slider (visual only, does not change the data).**")
@@ -234,15 +237,15 @@ def driver_page(df: pd.DataFrame):
     
     st.pyplot(fig2)
 
-    st.expander("**Interpretation**")
-    st.write(
+    with st.expander("**Interpretation**"):
+         st.write(
                 f"- **{p_inj}%** injured survivors.\n"
                 f"- **{p_fat}%** fatalities.\n"
                 "- Small percentage changes = big real-world impact."
             )
 
     center_text("Simple truth: Small percentage changes mean big real-world impact.", size=20)
-    #st.markdown("---")
+    st.markdown("---")
 
     # ================================================================
     # 3. Accident Cause Distribution – Treemap
@@ -302,7 +305,7 @@ def driver_page(df: pd.DataFrame):
 
     st.plotly_chart(fig3, use_container_width=True)
     
-    with st.expander("Interpretation"):
+    with st.expander("**Interpretation**"):
          st.write(
                 "- Treemap shows proportion of accidents by cause.\n"
                 "- Human errors (drunk, distracted, speeding) dominate.\n"
@@ -333,7 +336,7 @@ def government_page(df: pd.DataFrame):
             "where crashes are most concentrated, identify infrastructure gaps, and prioritize targeted improvements "
             "such as better lighting, road design upgrades, enforcement strategies, and community-level safety initiatives."
         )
-
+    st.markdown("---")
 
 
 
@@ -419,9 +422,9 @@ def government_page(df: pd.DataFrame):
 
             "\n- **Highways** make up the second-largest share, indicating notable crash risk at higher speeds."
 
-            "\n- **Streets** contribute the smallest portion, likely due to lower traffic volume and speed."
+            "\n- **Streets** contribute the smallest portion, likely due to lower traffic volume and speed.\n"
 
-            "Overall: **Main Roads** and **Highways** should be prioritised for safety improvements.")
+            "\nOverall: **Main Roads** and **Highways** should be prioritised for safety improvements.")
         
 
     st.markdown("---")
@@ -523,7 +526,299 @@ def government_page(df: pd.DataFrame):
 
 def emergency_page(df: pd.DataFrame):
     set_bg(emergency_bg)
-    center_text("Emergency Responder – Analysis coming soon", size=28)
+    
+    st.info(
+        "This view is designed for **emergency responders and dispatch teams**. "
+        "It focuses on how quickly help arrives (Emergency Response Time, ERT) "
+        "and where accidents are more severe across countries.\n\n"
+        "Use this page to:\n"
+        "- Compare **Urban vs Rural** response times\n"
+        "- Identify countries with **higher average accident severity**\n"
+        "- Support resource planning and prioritisation"
+    )
+    st.markdown("---")
+    ert_col = next(
+        (c for c in df.columns if "response" in c.lower() or "ert" in c.lower()),
+        None
+    )
+    severity_col = next(
+        (c for c in df.columns if "severity" in c.lower()),
+        None
+    )
+
+    if ert_col is None:
+        st.error(
+            "⚠️ Could not detect the Emergency Response Time (ERT) column.\n\n"
+            "Please rename your ERT column to include 'response' or 'ERT', "
+            "or manually set `ert_col` inside `emergency_page()`."
+        )
+        return
+
+    if severity_col is None:
+        st.error(
+            "⚠️ Could not detect any severity column.\n\n"
+            "Please rename your severity column to include 'severity', "
+            "or manually set `severity_col` inside `emergency_page()`."
+        )
+        return
+
+    country_col = "Country"
+    area_col = "Urban/Rural"
+    year_col = "Year"
+    ert_col = "Emergency Response Time"
+    severity_col = "Accident Severity"
+
+    # Make sure key columns exist
+    missing_cols = [c for c in [country_col, area_col, year_col] if c not in df.columns]
+    if missing_cols:
+        st.error(
+            f"Missing required column(s): {', '.join(missing_cols)}. "
+            "Please check your dataset."
+        )
+        return
+    
+    center_text("Emergency Response Time: Urban vs Rural", size=30)
+
+    # ================== FILTERS (Shared) ==================
+    st.markdown("### Filters")
+
+    left, right = st.columns(2)
+
+    with left:
+        years = sorted(df[year_col].dropna().unique())
+        selected_years = st.multiselect(
+            "Year(s) to include",
+            options=years,
+            default=years,
+        )
+
+    with right:
+        areas = df[area_col].dropna().unique().tolist()
+        selected_areas = st.multiselect(
+            "Area type(s)",
+            options=areas,
+            default=areas,
+        )
+
+    filtered = df.copy()
+    if selected_years:
+        filtered = filtered[filtered[year_col].isin(selected_years)]
+    if selected_areas:
+        filtered = filtered[filtered[area_col].isin(selected_areas)]
+
+    if filtered.empty:
+        st.warning("No data for the selected filters. Try widening your selection.")
+        return
+
+    # ================================================================
+    # 1. Dumbbell Chart – ERT vs Urban/Rural by Country
+    # ================================================================
+
+    agg_choice = st.radio(
+        "Summary statistic for ERT:",
+        ["Mean", "Median"],
+        horizontal=True,
+    )
+    agg_func = "mean" if agg_choice == "Mean" else "median"
+
+    ert_grouped = (
+        filtered.groupby([country_col, area_col])[ert_col]
+        .agg(agg_func)
+        .reset_index()
+        .rename(columns={ert_col: "ERT_Value"})
+    )
+
+    # Pivot to wide format: one column for Urban, one for Rural
+    pivot = ert_grouped.pivot(
+        index=country_col,
+        columns=area_col,
+        values="ERT_Value"
+    ).reset_index()
+
+    # Drop countries where we don't have at least one ERT value
+    pivot = pivot.dropna(how="all", subset=pivot.columns[1:])
+
+    if pivot.empty:
+        st.warning(
+            "Not enough data to draw the dumbbell chart. "
+            "Try including more area types or years."
+        )
+    else:
+        # Sort countries by overall average ERT (for nicer y-axis ordering)
+        pivot["AverageERT"] = pivot[pivot.columns[1:]].mean(axis=1)
+        pivot = pivot.sort_values("AverageERT", ascending=True)
+
+        fig_dumbbell = go.Figure()
+
+        # Add connecting lines (one per country)
+        for _, row in pivot.iterrows():
+            # Collect non-null area values for this country
+            xs = []
+            ys = []
+            for area in pivot.columns[1:-1]:  # skip country + AverageERT
+                val = row[area]
+                if pd.notna(val):
+                    xs.append(val)
+                    ys.append(row[country_col])
+            
+            if len(xs) >= 2:
+                fig_dumbbell.add_trace(
+                    go.Scatter(
+                        x=xs,
+                        y=ys,
+                        mode="lines",
+                        line=dict(width=2),
+                        showlegend=False,
+                        hoverinfo="skip",
+                    )
+                )
+
+
+        area_types = [c for c in pivot.columns[1:-1]]  
+        colors = px.colors.qualitative.Set2
+
+        for i, area_value in enumerate(area_types):
+            fig_dumbbell.add_trace(
+                go.Scatter(
+                    x=pivot[area_value],
+                    y=pivot[country_col],
+                    mode="markers",
+                    name=str(area_value),
+                    marker=dict(size=12, symbol="circle"),
+                    hovertemplate = (
+                                      "Country: %{y}<br>"
+                                      f"Area: {area_value}<br>"
+                                      f"{agg_choice} ERT: %{{x:.2f}} minutes<extra></extra>"
+                                    )
+                            )
+                                    )
+            
+        fig_dumbbell.update_layout(
+            xaxis_title=f"{agg_choice} Emergency Response Time (minutes)",
+            yaxis_title="Country",
+            margin=dict(t=40, l=0, r=0, b=0),
+            legend_title_text="Area Type",
+        )
+
+        st.plotly_chart(fig_dumbbell, use_container_width=True)
+
+        with st.expander("**Interpretation**"):
+            st.write(
+                "- Each **horizontal line** shows one country.\n"
+                "- The markers show **Urban vs Rural** average response time.\n"
+                "- A **wide gap** between the markers means big Urban–Rural disparity.\n"
+                "- Countries with **shorter ERT on the left** are responding faster overall.\n"
+                "- This helps identify where **Rural support needs to be boosted**."
+            )
+
+    st.markdown("---")
+
+    # ================================================================
+    # 2. Choropleth – Average Severity Level by Country
+    # ================================================================
+    center_text("Average Accident Severity by Country", size=30)
+
+    severity_map = {
+        "minor": 1,
+        "moderate": 2,
+        "severe": 3,
+    }
+
+    sev_clean = (
+        filtered[severity_col]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+        .map(severity_map)
+    )
+
+    if sev_clean.isna().all():
+        st.error(
+            "Cannot compute average severity – severity values could not be mapped. "
+            "Expected labels: minor, moderate, severe."
+        )
+        return
+
+    filtered_sev = filtered.copy()
+    filtered_sev["_SeverityNum"] = sev_clean
+
+    # static vs animated
+    mode = st.radio(
+        "Map mode:",
+        ["Overall average", "Animated by year"],
+        horizontal=True,
+    )
+
+    if mode == "Overall average":
+        sev_grouped = (
+            filtered_sev.groupby(country_col)["_SeverityNum"]
+            .mean()
+            .reset_index()
+            .rename(columns={"_SeverityNum": "Average Severity"})
+        )
+
+        fig_choro = px.choropleth(
+            sev_grouped,
+            locations=country_col,
+            locationmode="country names",
+            color="Average Severity",
+            hover_name=country_col,
+            color_continuous_scale=["#00cc00", "#ffff00", "#ff9900", "#ff0000"],
+            labels={"Average Severity": "Avg Severity"},
+        )
+
+        fig_choro.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=40, l=0, r=0, b=0),
+            coloraxis_colorbar=dict(
+                title="Avg Severity (1=Minor, 3=Severe)",
+            ),
+        )
+
+        st.plotly_chart(fig_choro, use_container_width=True)
+
+    else:
+        sev_year = (
+            filtered_sev.groupby([country_col, year_col])["_SeverityNum"]
+            .mean()
+            .reset_index()
+            .rename(columns={"_SeverityNum": "Average Severity"})
+        )
+
+        fig_choro = px.choropleth(
+            sev_year,
+            locations=country_col,
+            locationmode="country names",
+            color="Average Severity",
+            hover_name=country_col,
+            animation_frame=year_col,
+             color_continuous_scale=["#00cc00", "#ffff00", "#ff9900", "#ff0000"],
+            labels={"Average Severity": "Avg Severity"},
+        )
+
+        fig_choro.update_layout(
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=40, l=0, r=0, b=0),
+            coloraxis_colorbar=dict(
+                title="Avg Severity (1=Minor, 3=Severe)",
+            ),
+        )
+
+        st.plotly_chart(fig_choro, use_container_width=True)
+        
+    with st.expander("**Interpretation**"):
+        st.write(
+                "- The map visualises the **average accident severity** across countries using a clear colour gradient.\n"
+                "- **Green areas** represent **low average severity**, where most accidents are minor.\n"
+                "- **Yellow areas** indicate **moderate severity**, suggesting a mix of minor and more serious crashes.\n"
+                "- **Red areas** highlight **high average severity**, meaning crashes are more severe and may need stronger emergency response resources.\n"
+                "- In the **animated view**, you can observe how severity changes **year by year**, helping identify improving or worsening regions.\n"
+                "- This map helps emergency responders and policymakers prioritise **ambulance deployment, trauma care capacity, and road-safety interventions**."
+            )
+
+
 
 # =====================================================================
 # ROLE ROUTING
