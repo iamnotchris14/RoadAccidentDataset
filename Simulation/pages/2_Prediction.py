@@ -43,15 +43,17 @@ def center_text(text, size=30, weight="bold"):
     )
 
 # Load raw data (for dropdown options)
-#df = pd.read_csv("road_accident_dataset.csv")
-chunks = pd.read_csv(
-    "road_accident_dataset.csv",
-    engine="python",
-    on_bad_lines="skip",
-    chunksize=50000
-)
+@st.cache_data
+def load_dataset():
+    chunks = pd.read_csv(
+        "road_accident_dataset.csv",
+        engine="python",
+        on_bad_lines="skip",
+        chunksize=50000
+    )
+    return pd.concat(chunks, ignore_index=True)
 
-df = pd.concat(chunks, ignore_index=True)
+df = load_dataset()
 
 # ================== ROLE HANDLING (FOLLOW HOME LOGIC) ==================
 if "role" not in st.session_state:
@@ -98,15 +100,19 @@ elif role == "Emergency Responder":
 # Cached
 @st.cache_resource
 def load_driver_model():
-    return driver_model
+    return joblib.load("trainedModel/driver_model_compressed.pkl")
+@st.cache_resource
+def load_driver_encoders():
+    return joblib.load("trainedModel/driver_encoders_compressed.pkl")
+@st.cache_resource
+def load_driver_features():
+    return joblib.load("trainedModel/driver_features_compressed.pkl")
 
-@st.cache_data
-def load_df():
-    return df
 
-model = load_driver_model()
-df = load_df()
 def driver_prediction(df):
+    model = load_driver_model()
+    encoders = load_driver_encoders()
+    features = load_driver_features()
     # --- Page Title ---
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
@@ -208,15 +214,16 @@ def driver_prediction(df):
                 user_input["Visibility Level"] = subset["Visibility Level"].mean()
 
                 input_df = pd.DataFrame([user_input])
+                #encode categorical features
                 for col in input_df.columns:
-                    if col in driver_encoders:
-                        input_df[col] = driver_encoders[col].transform(input_df[col])
+                    if col in encoders:
+                        input_df[col] = encoders[col].transform(input_df[col])
 
-                input_df = input_df[driver_features]  # Reorder columns
+                input_df = input_df[features]  # Reorder columns
 
                 # --- probabilities (internal, not displayed) ---
-                probs = driver_model.predict_proba(input_df)[0]
-                class_names = driver_encoders[target].inverse_transform(driver_model.classes_)
+                probs = model.predict_proba(input_df)[0]
+                class_names = driver_encoders[target].inverse_transform(model.classes_)
 
                 top_idx = probs.argmax()
                 top_severity = class_names[top_idx]
@@ -302,273 +309,308 @@ def driver_prediction(df):
 
 
 # ================= GOVERNMENT ==========================
+# Cached
+@st.cache_resource
+def load_government_model():
+    return joblib.load("trainedModel/government_model_compressed.pkl")
+@st.cache_resource
+def load_government_encoders():
+    return joblib.load("trainedModel/government_encoders_compressed.pkl")
+@st.cache_resource
+def load_government_features():
+    return joblib.load("trainedModel/government_features_compressed.pkl")
+
 def government_prediction(df):
+    model = load_government_model()
+    encoders = load_government_encoders()
+    features = load_government_features()
     # --- Page Title ---
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Economic Loss Prediction💰", size=30)
 
-# Features expected by the model
-    # -------------------------
-    # Dropdowns
-    # -------------------------
-    user_input = {}
-    # -------------------------
-    # Country selection
-    # -------------------------
-    country_list = list(df['Country'].unique())
-    country_list.append("Other / Not Listed")
-    selected_country = st.selectbox("Country🌍", country_list)
-    user_input["Country"] = selected_country
-
- 
-    # -------------------------
-    # Conditional Region input
-    # -------------------------
-    if selected_country == "Other / Not Listed":
-        region_list = list(df['Region'].unique())
-        selected_region = st.selectbox("Region🗺️", region_list)
-        user_input["Region"] = selected_region
-
-        # Map "Other" country to the most frequent country in the selected region
-        valid_countries = df[df['Region'] == selected_region]['Country']
-        mapped_country = valid_countries.mode()[0]  # most frequent country
-        user_input["Country"] = mapped_country
-    else:
+    with st.form("government_form", clear_on_submit=False):
+        # Features expected by the model
+        # -------------------------
+        # Dropdowns
+        # -------------------------
+        user_input = {}
+        # -------------------------
+        # Country selection
+        # -------------------------
+        country_list = list(df['Country'].unique())
+        country_list.append("Other / Not Listed")
+        selected_country = st.selectbox("Country🌍", country_list)
         user_input["Country"] = selected_country
-        # Set Region as the most frequent region for this country
-        region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
-        user_input["Region"] = region_default
-    # -------------------------
-    # Dropdowns with emojis
-    # -------------------------
-    # Time of Day
-    time_dict = {
-        "Morning": "🌅 Morning",
-        "Afternoon": "🌞 Afternoon",
-        "Evening": "🌇 Evening",
-        "Night": "🌙 Night"
-    }
-    selected_time = st.selectbox("Time of Day", list(time_dict.values()))
-    user_input["Time of Day"] = {v:k for k,v in time_dict.items()}[selected_time]
 
-    # Road Type
-    road_dict = {
-        "Main Road": "🛣️ Main Road",
-        "Highway": "🛤️ Highway",
-        "Street": "🏘️ Street"
-    }
-    selected_road = st.selectbox("Road Type", list(road_dict.values()))
-    user_input["Road Type"] = {v:k for k,v in road_dict.items()}[selected_road]
-
-    # Weather Conditions
-    weather_dict = {
-        "Clear": "☀️ Clear",
-        "Rainy": "🌧️ Rainy",
-        "Snowy": "🌨️ Snowy",
-        "Foggy": "🌫️ Foggy",
-        "Windy": "💨 Windy"
-    }
-    selected_weather = st.selectbox("Weather Conditions", list(weather_dict.values()))
-    user_input["Weather Conditions"] = {v:k for k,v in weather_dict.items()}[selected_weather]
-
-    # -------------------------
-    # Sliders
-    # -------------------------
-    # Month as select slider
-    months_ordered = ["January","February","March","April","May","June",
-                      "July","August","September","October","November","December"]
-    user_input["Month"] = st.select_slider("Month 📅", options=months_ordered, value="January")
     
-    min_traffic = int(df["Traffic Volume"].min())
-    max_traffic = int(df["Traffic Volume"].max())
-    user_input["Traffic Volume"] = st.slider("Traffic Volume🚦(vehicles/hour)", min_value=min_traffic, max_value=max_traffic, value=(min_traffic+max_traffic)//2)
-
-    min_pop = int(df["Population Density"].min())
-    max_pop = int(df["Population Density"].max())
-    user_input["Population Density"] = st.slider("Population Density🏙️(people/km²)", min_value=min_pop, max_value=max_pop, value=(min_pop+max_pop)//2)
-
-    # -------------------------
-    # Internal/default values
-    # -------------------------
-    internal = [
-        "Number of Injuries", "Number of Fatalities", "Medical Cost",
-        "Insurance Claims", "Number of Vehicles Involved",
-        "Pedestrians Involved", "Cyclists Involved"
-    ]
-    for f in internal:
-        user_input[f] = df[f].mean()
-
-    # -------------------------
-    # Predict button
-    # -------------------------
-    if st.button("Predict Economic Loss"):
-        input_df = pd.DataFrame([user_input])
-        for col in input_df.columns:
-            if col in government_encoders:
-                input_df[col] = government_encoders[col].transform(input_df[col])
-        input_df = input_df[government_features]
-        pred = government_model.predict(input_df)[0]
-        st.subheader(f"Estimated Economic Loss per Accident: **${pred:,.2f}💸**")
         # -------------------------
-        # Scenario-based Government Insights
+        # Conditional Region input
         # -------------------------
-        st.markdown("### 💰 Government Insights & Recommendations")
-        if pred < 5000:
-            st.info("✅ Economic impact per accident is low.\n\n💡 Suggested Actions:\n- Monitor accident trends\n- Apply minor preventive measures in this region")
-        elif pred < 20000:
-            st.warning("⚠️ Moderate economic impact expected.\n\n💡 Suggested Actions:\n- Strengthen road safety campaigns\n- Consider targeted infrastructure improvements\n- Allocate budget for emergency services and insurance coverage adjustments")
+        if selected_country == "Other / Not Listed":
+            region_list = list(df['Region'].unique())
+            selected_region = st.selectbox("Region🗺️", region_list)
+            user_input["Region"] = selected_region
+
+            # Map "Other" country to the most frequent country in the selected region
+            valid_countries = df[df['Region'] == selected_region]['Country']
+            mapped_country = valid_countries.mode()[0]  # most frequent country
+            user_input["Country"] = mapped_country
         else:
-            st.error("🚨 High economic impact predicted!\n\n💡 Suggested Actions:\n- Prioritize funding for high-risk areas\n- Invest in road maintenance, public awareness, and emergency preparedness\n- Adjust insurance and compensation policies proactively")
-        st.markdown("**🎯 Value:** Turns accident data into financial impact insights, making budgeting and policy-making more strategic.")
-        # ========================
-        # Disclaimer (bottom)
-        # ========================
-        st.markdown(
-         """
-        <p style='font-size: 15px; color: rgba(0,0,0,0.6);'>
-        ⚠️ <strong>Disclaimer:</strong> This prediction is generated by a machine learning model and may not be 100% accurate.  
-        Please use it as a supportive insight, not a definitive assessment.
-        </p>
-         """,
-        unsafe_allow_html=True
-        )
+            user_input["Country"] = selected_country
+            # Set Region as the most frequent region for this country
+            region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
+            user_input["Region"] = region_default
+        # -------------------------
+        # Dropdowns with emojis
+        # -------------------------
+        # Time of Day
+        time_dict = {
+            "Morning": "🌅 Morning",
+            "Afternoon": "🌞 Afternoon",
+            "Evening": "🌇 Evening",
+            "Night": "🌙 Night"
+        }
+        selected_time = st.selectbox("Time of Day", list(time_dict.values()))
+        user_input["Time of Day"] = {v:k for k,v in time_dict.items()}[selected_time]
+
+        # Road Type
+        road_dict = {
+            "Main Road": "🛣️ Main Road",
+            "Highway": "🛤️ Highway",
+            "Street": "🏘️ Street"
+        }
+        selected_road = st.selectbox("Road Type", list(road_dict.values()))
+        user_input["Road Type"] = {v:k for k,v in road_dict.items()}[selected_road]
+
+        # Weather Conditions
+        weather_dict = {
+            "Clear": "☀️ Clear",
+            "Rainy": "🌧️ Rainy",
+            "Snowy": "🌨️ Snowy",
+            "Foggy": "🌫️ Foggy",
+            "Windy": "💨 Windy"
+        }
+        selected_weather = st.selectbox("Weather Conditions", list(weather_dict.values()))
+        user_input["Weather Conditions"] = {v:k for k,v in weather_dict.items()}[selected_weather]
+
+        # -------------------------
+        # Sliders
+        # -------------------------
+        # Month as select slider
+        months_ordered = ["January","February","March","April","May","June",
+                        "July","August","September","October","November","December"]
+        user_input["Month"] = st.select_slider("Month 📅", options=months_ordered, value="January")
+        
+        min_traffic = int(df["Traffic Volume"].min())
+        max_traffic = int(df["Traffic Volume"].max())
+        user_input["Traffic Volume"] = st.slider("Traffic Volume🚦(vehicles/hour)", min_value=min_traffic, max_value=max_traffic, value=(min_traffic+max_traffic)//2)
+
+        min_pop = int(df["Population Density"].min())
+        max_pop = int(df["Population Density"].max())
+        user_input["Population Density"] = st.slider("Population Density🏙️(people/km²)", min_value=min_pop, max_value=max_pop, value=(min_pop+max_pop)//2)
+
+        # -------------------------
+        # Internal/default values
+        # -------------------------
+        internal = [
+            "Number of Injuries", "Number of Fatalities", "Medical Cost",
+            "Insurance Claims", "Number of Vehicles Involved",
+            "Pedestrians Involved", "Cyclists Involved"
+        ]
+        for f in internal:
+            user_input[f] = df[f].mean()
+
+        # --- submit button ---
+        submit = st.form_submit_button("Predict Economic Loss")
+        # -------------------------
+        # Predict button
+        # -------------------------
+        if submit:
+            input_df = pd.DataFrame([user_input])
+            for col in input_df.columns:
+                if col in encoders:
+                    input_df[col] = encoders[col].transform(input_df[col])
+            input_df = input_df[features]
+            pred = government_model.predict(input_df)[0]
+            st.subheader(f"Estimated Economic Loss per Accident: **${pred:,.2f}💸**")
+            # -------------------------
+            # Scenario-based Government Insights
+            # -------------------------
+            st.markdown("### 💰 Government Insights & Recommendations")
+            if pred < 5000:
+                st.info("✅ Economic impact per accident is low.\n\n💡 Suggested Actions:\n- Monitor accident trends\n- Apply minor preventive measures in this region")
+            elif pred < 20000:
+                st.warning("⚠️ Moderate economic impact expected.\n\n💡 Suggested Actions:\n- Strengthen road safety campaigns\n- Consider targeted infrastructure improvements\n- Allocate budget for emergency services and insurance coverage adjustments")
+            else:
+                st.error("🚨 High economic impact predicted!\n\n💡 Suggested Actions:\n- Prioritize funding for high-risk areas\n- Invest in road maintenance, public awareness, and emergency preparedness\n- Adjust insurance and compensation policies proactively")
+            st.markdown("**🎯 Value:** Turns accident data into financial impact insights, making budgeting and policy-making more strategic.")
+            # ========================
+            # Disclaimer (bottom)
+            # ========================
+            st.markdown(
+            """
+            <p style='font-size: 15px; color: rgba(0,0,0,0.6);'>
+            ⚠️ <strong>Disclaimer:</strong> This prediction is generated by a machine learning model and may not be 100% accurate.  
+            Please use it as a supportive insight, not a definitive assessment.
+            </p>
+            """,
+            unsafe_allow_html=True
+            )
 
 
 # ================== RESPONDER ==========================
+@st.cache_resource
+def load_responder_model():
+    return joblib.load("trainedModel/responder_model_compressed.pkl")
+
+@st.cache_resource
+def load_responder_encoders():
+    return joblib.load("trainedModel/responder_encoders_compressed.pkl")
+
+@st.cache_resource
+def load_responder_features():
+    return joblib.load("trainedModel/responder_features_compressed.pkl")
+
 def responder_prediction(df):
+    model = load_responder_model()
+    encoders = load_responder_encoders()
+    features = load_responder_features()
     # --- Page Title ---
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Emergency Response Time Prediction 🚑", size=30)
     
-    user_input = {}
+    with st.form("responder_form", clear_on_submit=False):
+        user_input = {}
 
-     # -------------------------
-    # Country selection
-    # -------------------------
-    country_list = list(df['Country'].unique())
-    country_list.append("Other / Not Listed")
-    selected_country = st.selectbox("Country🌍", country_list)
-    user_input["Country"] = selected_country
-    # -------------------------
-    # Conditional Region input
-    # -------------------------
-    if selected_country == "Other / Not Listed":
-        region_list = list(df['Region'].unique())
-        selected_region = st.selectbox("Region🗺️", region_list)
-        user_input["Region"] = selected_region
-
-        # Map "Other" country to the most frequent country in the selected region
-        valid_countries = df[df['Region'] == selected_region]['Country']
-        mapped_country = valid_countries.mode()[0]  # most frequent country
-        user_input["Country"] = mapped_country
-    else:
-        user_input["Country"] = selected_country
-        # Set Region as the most frequent region for this country
-        region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
-        user_input["Region"] = region_default
-    # -------------------------
-    # Urban/Rural selection
-    # -------------------------
-    urban_dict = {
-        "Urban": "Urban🌆",
-        "Rural": "Rural🌾"
-    }
-    selected = st.radio("Urban or Rural", list(urban_dict.values()))
-    # Map back to the label seen by the encoder
-    user_input["Urban/Rural"] = {v:k for k,v in urban_dict.items()}[selected]
-    # -------------------------
-    # Month and Day sliders
-    # -------------------------
-    months_ordered = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-    ]
-    user_input["Month"] = st.select_slider("Month 📅", options=months_ordered, value="January")
-    
-    weekdays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-    user_input["Day of Week"] = st.select_slider("Day of Week 📆", options=weekdays, value="Monday")
-
-    # Time of Day
-    time_dict = {
-        "Morning": "🌅 Morning",
-        "Afternoon": "🌞 Afternoon",
-        "Evening": "🌇 Evening",
-        "Night": "🌙 Night"
-    }
-    selected_time = st.selectbox("Time of Day", list(time_dict.values()))
-    user_input["Time of Day"] = {v:k for k,v in time_dict.items()}[selected_time]
-    # -------------------------
-    # Weather Conditions dropdown
-    # -------------------------
-    weather_dict = {
-        "Clear": "☀️ Clear",
-        "Rainy": "🌧️ Rainy",
-        "Snowy": "❄️ Snowy",
-        "Foggy": "🌫️ Foggy",
-        "Windy": "💨 Windy"
-    }
-    selected_weather = st.selectbox("Weather Conditions", list(weather_dict.values()))
-    reverse_weather = {v: k for k, v in weather_dict.items()}
-    user_input["Weather Conditions"] = reverse_weather[selected_weather]
-
-    # -------------------------
-    # Road Type dropdown
-    # -------------------------
-    road_dict = {
-        "Main Road": "🛣️ Main Road",
-        "Highway": "🛤️ Highway",
-        "Street": "🏘️ Street"
-    }
-    selected_road = st.selectbox("Road Type", list(road_dict.values()))
-    reverse_road = {v: k for k, v in road_dict.items()}
-    user_input["Road Type"] = reverse_road[selected_road]
-
-    # -------------------------
-    # Internal/default features (hidden)
-    # -------------------------
-    internal = ["Population Density", "Traffic Volume", "Road Condition"]
-    for f in internal:
-        if f in ["Population Density", "Traffic Volume"]:
-            user_input[f] = df[f].mean()
-        else:
-            user_input[f] = df[f].mode()[0]
-
-    # -------------------------
-    # Predict button
-    # -------------------------
-    if st.button("Predict Emergency Response Time"):
-        input_df = pd.DataFrame([user_input])
-        for col in input_df.columns:
-            if col in responder_encoders:
-                input_df[col] = responder_encoders[col].transform(input_df[col])
-
-        pred = responder_model.predict(input_df)[0]
-        st.subheader(f"Predicted Emergency Response Time: **{pred:.2f} minutes** ⏱️")
-         # -------------------------
-        # Scenario-based Responder Insights
         # -------------------------
-        st.markdown("### 🚑 Emergency Response Insights & Recommendations")
-        if pred <= 10:
-            st.info("✅ Response time is good.\n\n💡 Suggested Actions:\n- Maintain current resource allocation and readiness\n- Track trends to ensure continued performance")
-        elif pred <= 20:
-            st.warning("⚠️ Moderate response time.\n\n💡 Suggested Actions:\n- Adjust patrol units or station placements\n- Optimize dispatch routes\n- Prepare additional resources during peak hours")
+        # Country selection
+        # -------------------------
+        country_list = list(df['Country'].unique())
+        country_list.append("Other / Not Listed")
+        selected_country = st.selectbox("Country🌍", country_list)
+        user_input["Country"] = selected_country
+        # -------------------------
+        # Conditional Region input
+        # -------------------------
+        if selected_country == "Other / Not Listed":
+            region_list = list(df['Region'].unique())
+            selected_region = st.selectbox("Region🗺️", region_list)
+            user_input["Region"] = selected_region
+
+            # Map "Other" country to the most frequent country in the selected region
+            valid_countries = df[df['Region'] == selected_region]['Country']
+            mapped_country = valid_countries.mode()[0]  # most frequent country
+            user_input["Country"] = mapped_country
         else:
-            st.error("🚨 High response time! Immediate action needed.\n\n💡 Suggested Actions:\n- Reallocate ambulances, officers, and firefighting units\n- Improve routing and coordination\n- Enhance preparedness during adverse weather or high-incident periods")
-        st.markdown("**🎯 Value:** Helps allocate resources to reduce life-saving response delays.")
-        # ========================
-        # Disclaimer (bottom)
-        # ========================
-        st.markdown(
-         """
-        <p style='font-size: 15px; color: rgba(0,0,0,0.6);'>
-        ⚠️ <strong>Disclaimer:</strong> This prediction is generated by a machine learning model and may not be 100% accurate.  
-        Please use it as a supportive insight, not a definitive assessment.
-        </p>
-         """,
-        unsafe_allow_html=True
-        )
+            user_input["Country"] = selected_country
+            # Set Region as the most frequent region for this country
+            region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
+            user_input["Region"] = region_default
+        # -------------------------
+        # Urban/Rural selection
+        # -------------------------
+        urban_dict = {
+            "Urban": "Urban🌆",
+            "Rural": "Rural🌾"
+        }
+        selected = st.radio("Urban or Rural", list(urban_dict.values()))
+        # Map back to the label seen by the encoder
+        user_input["Urban/Rural"] = {v:k for k,v in urban_dict.items()}[selected]
+        # -------------------------
+        # Month and Day sliders
+        # -------------------------
+        months_ordered = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ]
+        user_input["Month"] = st.select_slider("Month 📅", options=months_ordered, value="January")
+        
+        weekdays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+        user_input["Day of Week"] = st.select_slider("Day of Week 📆", options=weekdays, value="Monday")
+
+        # Time of Day
+        time_dict = {
+            "Morning": "🌅 Morning",
+            "Afternoon": "🌞 Afternoon",
+            "Evening": "🌇 Evening",
+            "Night": "🌙 Night"
+        }
+        selected_time = st.selectbox("Time of Day", list(time_dict.values()))
+        user_input["Time of Day"] = {v:k for k,v in time_dict.items()}[selected_time]
+        # -------------------------
+        # Weather Conditions dropdown
+        # -------------------------
+        weather_dict = {
+            "Clear": "☀️ Clear",
+            "Rainy": "🌧️ Rainy",
+            "Snowy": "❄️ Snowy",
+            "Foggy": "🌫️ Foggy",
+            "Windy": "💨 Windy"
+        }
+        selected_weather = st.selectbox("Weather Conditions", list(weather_dict.values()))
+        reverse_weather = {v: k for k, v in weather_dict.items()}
+        user_input["Weather Conditions"] = reverse_weather[selected_weather]
+
+        # -------------------------
+        # Road Type dropdown
+        # -------------------------
+        road_dict = {
+            "Main Road": "🛣️ Main Road",
+            "Highway": "🛤️ Highway",
+            "Street": "🏘️ Street"
+        }
+        selected_road = st.selectbox("Road Type", list(road_dict.values()))
+        reverse_road = {v: k for k, v in road_dict.items()}
+        user_input["Road Type"] = reverse_road[selected_road]
+
+        # -------------------------
+        # Internal/default features (hidden)
+        # -------------------------
+        internal = ["Population Density", "Traffic Volume", "Road Condition"]
+        for f in internal:
+            if f in ["Population Density", "Traffic Volume"]:
+                user_input[f] = df[f].mean()
+            else:
+                user_input[f] = df[f].mode()[0]
+
+        # --- submit button ---
+        submit = st.form_submit_button("Predict Emergency Response Time")
+        # -------------------------
+        # Predict button
+        # -------------------------
+        if submit:
+            input_df = pd.DataFrame([user_input])
+            for col in input_df.columns:
+                if col in encoders:
+                    input_df[col] = encoders[col].transform(input_df[col])
+
+            pred = model.predict(input_df)[0]
+            st.subheader(f"Predicted Emergency Response Time: **{pred:.2f} minutes** ⏱️")
+            # -------------------------
+            # Scenario-based Responder Insights
+            # -------------------------
+            st.markdown("### 🚑 Emergency Response Insights & Recommendations")
+            if pred <= 10:
+                st.info("✅ Response time is good.\n\n💡 Suggested Actions:\n- Maintain current resource allocation and readiness\n- Track trends to ensure continued performance")
+            elif pred <= 20:
+                st.warning("⚠️ Moderate response time.\n\n💡 Suggested Actions:\n- Adjust patrol units or station placements\n- Optimize dispatch routes\n- Prepare additional resources during peak hours")
+            else:
+                st.error("🚨 High response time! Immediate action needed.\n\n💡 Suggested Actions:\n- Reallocate ambulances, officers, and firefighting units\n- Improve routing and coordination\n- Enhance preparedness during adverse weather or high-incident periods")
+            st.markdown("**🎯 Value:** Helps allocate resources to reduce life-saving response delays.")
+            # ========================
+            # Disclaimer (bottom)
+            # ========================
+            st.markdown(
+            """
+            <p style='font-size: 15px; color: rgba(0,0,0,0.6);'>
+            ⚠️ <strong>Disclaimer:</strong> This prediction is generated by a machine learning model and may not be 100% accurate.  
+            Please use it as a supportive insight, not a definitive assessment.
+            </p>
+            """,
+            unsafe_allow_html=True
+            )
 # =======================================================
 # ROUTING BY ROLE
 # =======================================================
