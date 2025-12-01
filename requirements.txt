@@ -1,8 +1,12 @@
 streamlit 
 pandas 
+matplotlib.pyplot 
 squarify
 numpy 
 plotly.graph_objects 
 joblib
+math
+base64
 altair 
-plotly
+plotly.express 
+matplotlib.patches
