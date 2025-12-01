@@ -339,14 +339,13 @@ def government_prediction(df):
         # Country selection
         # -------------------------
         country_list = list(df['Country'].unique())
-        country_list.append("Other / Not Listed")
         selected_country = st.selectbox("Country🌍", country_list)
         user_input["Country"] = selected_country
 
     
-        # -------------------------
-        # Conditional Region input
-        # -------------------------
+        # -----------------------------------------------------------------------
+        # IGNORE THIS REGION PART, CANT DELETE SINCE REGION USED IN TRAINING MODEL
+        # -------------------------------------------------------------------------
         if selected_country == "Other / Not Listed":
             region_list = list(df['Region'].unique())
             selected_region = st.selectbox("Region🗺️", region_list)
@@ -481,33 +480,34 @@ def responder_prediction(df):
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Emergency Response Time Prediction 🚑", size=30)
     
-    with st.form("responder_form", clear_on_submit=False):
-        user_input = {}
+    user_input = {}
+    # -------------------------
+    # Country selection
+    # -------------------------
+    country_list = list(df['Country'].unique())
+    country_list.append("Other / Not Listed")
+    selected_country = st.selectbox("Country🌍", country_list)
+    user_input["Country"] = selected_country
+    # -------------------------
+    # Conditional Region input
+    # -------------------------
+    if selected_country == "Other / Not Listed":
+        region_list = list(df['Region'].unique())
+        selected_region = st.selectbox("Region🗺️", region_list)
+        user_input["Region"] = selected_region
 
-        # -------------------------
-        # Country selection
-        # -------------------------
-        country_list = list(df['Country'].unique())
-        country_list.append("Other / Not Listed")
-        selected_country = st.selectbox("Country🌍", country_list)
+        # Map "Other" country to the most frequent country in the selected region
+        valid_countries = df[df['Region'] == selected_region]['Country']
+        mapped_country = valid_countries.mode()[0]  # most frequent country
+        user_input["Country"] = mapped_country
+    else:
         user_input["Country"] = selected_country
-        # -------------------------
-        # Conditional Region input
-        # -------------------------
-        if selected_country == "Other / Not Listed":
-            region_list = list(df['Region'].unique())
-            selected_region = st.selectbox("Region🗺️", region_list)
-            user_input["Region"] = selected_region
-
-            # Map "Other" country to the most frequent country in the selected region
-            valid_countries = df[df['Region'] == selected_region]['Country']
-            mapped_country = valid_countries.mode()[0]  # most frequent country
-            user_input["Country"] = mapped_country
-        else:
-            user_input["Country"] = selected_country
-            # Set Region as the most frequent region for this country
-            region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
-            user_input["Region"] = region_default
+        # Set Region as the most frequent region for this country
+        region_default = df[df['Country'] == selected_country]['Region'].mode()[0]
+        user_input["Region"] = region_default    
+    
+    with st.form("responder_form", clear_on_submit=False):
+        
         # -------------------------
         # Urban/Rural selection
         # -------------------------
