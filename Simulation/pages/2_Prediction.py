@@ -67,23 +67,6 @@ role = st.sidebar.selectbox(
 )
 st.session_state["role"] = role
 
-# Load saved ML models
-# DRIVER
-driver_model = joblib.load("trainedModel/driver_model_compressed.pkl")
-driver_encoders = joblib.load("trainedModel/driver_encoders_compressed.pkl")
-driver_features = joblib.load("trainedModel/driver_features_compressed.pkl")
-
-# GOVERNMENT
-government_model = joblib.load("trainedModel/government_model_compressed.pkl")
-government_encoders = joblib.load("trainedModel/government_encoders_compressed.pkl")
-government_features = joblib.load("trainedModel/government_features_compressed.pkl")
-
-# RESPONDER
-responder_model = joblib.load("trainedModel/responder_model_compressed.pkl")
-responder_encoders = joblib.load("trainedModel/responder_encoders_compressed.pkl")
-responder_features = joblib.load("trainedModel/responder_features_compressed.pkl")
-
-
 # -----------------------------------------------
 # Load global role (from sidebar in Home.py)
 # -----------------------------------------------
@@ -100,13 +83,13 @@ elif role == "Emergency Responder":
 # Cached
 @st.cache_resource
 def load_driver_model():
-    return joblib.load("trainedModel/driver_model_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/driver_model_compressed.pkl")
 @st.cache_resource
 def load_driver_encoders():
-    return joblib.load("trainedModel/driver_encoders_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/driver_encoders_compressed.pkl")
 @st.cache_resource
 def load_driver_features():
-    return joblib.load("trainedModel/driver_features_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/driver_features_compressed.pkl")
 
 
 def driver_prediction(df):
@@ -313,13 +296,13 @@ def driver_prediction(df):
 # Cached
 @st.cache_resource
 def load_government_model():
-    return joblib.load("trainedModel/government_model_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/government_model_compressed.pkl")
 @st.cache_resource
 def load_government_encoders():
-    return joblib.load("trainedModel/government_encoders_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/government_encoders_compressed.pkl")
 @st.cache_resource
 def load_government_features():
-    return joblib.load("trainedModel/government_features_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/government_features_compressed.pkl")
 
 def government_prediction(df):
     model = load_government_model()
@@ -463,15 +446,15 @@ def government_prediction(df):
 # ================== RESPONDER ==========================
 @st.cache_resource
 def load_responder_model():
-    return joblib.load("trainedModel/responder_model_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/responder_model_compressed.pkl")
 
 @st.cache_resource
 def load_responder_encoders():
-    return joblib.load("trainedModel/responder_encoders_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/responder_encoders_compressed.pkl")
 
 @st.cache_resource
 def load_responder_features():
-    return joblib.load("trainedModel/responder_features_compressed.pkl")
+    return joblib.load("Simulation/trainedModel/responder_features_compressed.pkl")
 
 def responder_prediction(df):
     model = load_responder_model()
