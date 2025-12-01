@@ -207,7 +207,7 @@ def driver_prediction(df):
 
                 # --- probabilities (internal, not displayed) ---
                 probs = model.predict_proba(input_df)[0]
-                class_names = driver_encoders[target].inverse_transform(model.classes_)
+                class_names = encoders[target].inverse_transform(model.classes_)
 
                 top_idx = probs.argmax()
                 top_severity = class_names[top_idx]
