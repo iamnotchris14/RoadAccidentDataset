@@ -61,6 +61,7 @@ role = st.session_state["role"]
 center_text("", size=20)
 center_text("🚦Traffic Accident Risk Dashboard", size=50)
 center_text("Home", size=30)
+center_text("By : Christopher Lee Jia Yung (0139066)", size=20)
 
 # --- Intro content (lightly tailored) ---
 if role == "Driver":

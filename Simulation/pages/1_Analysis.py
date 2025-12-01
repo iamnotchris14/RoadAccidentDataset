@@ -79,23 +79,24 @@ role = st.sidebar.selectbox(
 )
 st.session_state["role"] = role
 
-# ================== LOAD DATA ==================
+# ================== LOAD DATA =========================================================================================
 df = pd.read_csv("road_accident_dataset.csv")
 
-# ================== LAYOUT: HEADER ==================
+# ================== LAYOUT: HEADER ====================================================================================
 center_text("", size=20)
 center_text("🚦 Traffic Accident Risk Dashboard", size=40)
 center_text("Analysis", size=28)
+center_text("By : Nur Insyirah binti Anis (0137471)", size=20)
 st.markdown("---")
 
-# =====================================================================
+# =================================================================================================================================
 # DRIVER PAGE
-# =====================================================================
+# ===================================================================================================================================
 
 def driver_page(df: pd.DataFrame):
     set_bg(driver_bg)
 
-    # ================== INTRO SECTION ==================
+    # ================== INTRO SECTION =========================================================================
     st.info(
             "This section presents key data insights that help you as a driver understand "
             "when and why road accidents are most likely to occur.\n\n"
@@ -106,9 +107,9 @@ def driver_page(df: pd.DataFrame):
         )
 
 
-    # ================================================================
+    # ============================================================================================================================
     # 1. Accident Distribution by Time of Day – Donut Chart
-    # ================================================================
+    # =====================================================================================================================
     st.markdown("---")
     center_text("Accident Distribution by Time of Day", size=30)
 
@@ -169,9 +170,9 @@ def driver_page(df: pd.DataFrame):
     center_text("Simple truth: Safe driving matters more than time of day.", size=20)
     st.markdown("---")
 
-    # ================================================================
+    # ========================================================================================================================================
     # 2. Injuries vs Fatalities – Pictogram
-    # ================================================================
+    # ===================================================================================================================================
     center_text("Injuries vs Fatalities", size=30)
 
     injuries = int(df["Number of Injuries"].sum())
@@ -247,9 +248,9 @@ def driver_page(df: pd.DataFrame):
     center_text("Simple truth: Small percentage changes mean big real-world impact.", size=20)
     st.markdown("---")
 
-    # ================================================================
+    # =================================================================================================================================
     # 3. Accident Cause Distribution – Treemap
-    # ================================================================
+    # =================================================================================================================================
     center_text("Accident Cause Distribution", size=30)
 
     cause_counts = df["Accident Cause"].value_counts().sort_values(ascending=False)
@@ -321,13 +322,14 @@ def driver_page(df: pd.DataFrame):
             "**Small changes in behaviour = safer roads**"
         )
 
-# ======================================================================================================
+# ==============================================================================================================================================
 # GOVERNMENT PAGE
-# =========================================================================================================
+# ==============================================================================================================================================
 
 def government_page(df: pd.DataFrame):
     set_bg(gov_bg)
     
+    #===========================================Introduction of Pages==========================================================
     st.info(
             "This view is designed for **government and road authorities**. "
             "It highlights **high-risk road types**, differences in **urban/rural crashes**, "
@@ -347,9 +349,9 @@ def government_page(df: pd.DataFrame):
     year_col = "Year"
     fatal_col = "Number of Fatalities"
 
-    # ---------------------------------------------------------------
+    # ==============================================================================================================================
     # 1. ROAD TYPE WAFFLE
-    # ---------------------------------------------------------------
+    # ==============================================================================================================================
     center_text("Road Type Distribution of Accidents", size=30)
 
     road_counts = df[road_col].dropna().value_counts()
@@ -369,15 +371,15 @@ def government_page(df: pd.DataFrame):
     waffle_grid = np.array(waffle_list).reshape(n_rows, n_cols)
 
 
-    # Use a Matplotlib-friendly pastel hex palette
+    
     pastel = [
-        "#FFB3BA",  # soft red
-        "#FFDFBA",  # soft orange
-        "#FFFFBA",  # soft yellow
-        "#BAFFC9",  # soft green
-        "#BAE1FF",  # soft blue
-        "#E2C6FF",  # soft purple
-        "#FFD1DC",  # soft pink
+        "#FFB3BA",  
+        "#FFDFBA",  
+        "#FFFFBA",  
+        "#BAFFC9",  
+        "#BAE1FF",   
+        "#E2C6FF",  
+        "#FFD1DC",  
     ]
 
     road_categories = list(road_counts.index)
@@ -429,9 +431,9 @@ def government_page(df: pd.DataFrame):
 
     st.markdown("---")
 
-    # ---------------------------------------------------------------
+    # ==================================================================================================================================
     # 2. URBAN vs RURAL BAR CHART
-    # ---------------------------------------------------------------
+    # ==================================================================================================================================
     center_text("Accident Cases in Urban vs Rural Area", size=30)
 
     area_counts = (
@@ -469,9 +471,9 @@ def government_page(df: pd.DataFrame):
 
     st.markdown("---")
 
-    # ---------------------------------------------------------------
+    # ==========================================================================================================================
     # 3. FATALITIES OVER YEARS (LINE CHART)
-    # ---------------------------------------------------------------
+    # ==========================================================================================================================
     center_text("Fatalities Over the Years by Country", size=30)
 
     trend = (
@@ -520,13 +522,14 @@ def government_page(df: pd.DataFrame):
         )
 
 
-# =====================================================================
+# =======================================================================================================================================
 # EMERGENCY PAGE
-# =====================================================================
+# =======================================================================================================================================
 
 def emergency_page(df: pd.DataFrame):
     set_bg(emergency_bg)
     
+    #===============================================Introduction of the Page=============================================================
     st.info(
         "This view is designed for **emergency responders and dispatch teams**. "
         "It focuses on how quickly help arrives (Emergency Response Time, ERT) "
@@ -610,9 +613,9 @@ def emergency_page(df: pd.DataFrame):
         st.warning("No data for the selected filters. Try widening your selection.")
         return
 
-    # ================================================================
+    # ============================================================================================================
     # 1. Dumbbell Chart – ERT vs Urban/Rural by Country
-    # ================================================================
+    # ============================================================================================================
 
     agg_choice = st.radio(
         "Summary statistic for ERT:",
@@ -635,7 +638,7 @@ def emergency_page(df: pd.DataFrame):
         values="ERT_Value"
     ).reset_index()
 
-    # Drop countries where we don't have at least one ERT value
+    # Drop countries where don't have at least one ERT value
     pivot = pivot.dropna(how="all", subset=pivot.columns[1:])
 
     if pivot.empty:
@@ -644,7 +647,7 @@ def emergency_page(df: pd.DataFrame):
             "Try including more area types or years."
         )
     else:
-        # Sort countries by overall average ERT (for nicer y-axis ordering)
+        # Sort countries by overall average ERT 
         pivot["AverageERT"] = pivot[pivot.columns[1:]].mean(axis=1)
         pivot = pivot.sort_values("AverageERT", ascending=True)
 
@@ -655,7 +658,7 @@ def emergency_page(df: pd.DataFrame):
             # Collect non-null area values for this country
             xs = []
             ys = []
-            for area in pivot.columns[1:-1]:  # skip country + AverageERT
+            for area in pivot.columns[1:-1]:  
                 val = row[area]
                 if pd.notna(val):
                     xs.append(val)
@@ -713,9 +716,9 @@ def emergency_page(df: pd.DataFrame):
 
     st.markdown("---")
 
-    # ================================================================
+    # =============================================================================================================================
     # 2. Choropleth – Average Severity Level by Country
-    # ================================================================
+    # =============================================================================================================================
     center_text("Average Accident Severity by Country", size=30)
 
     severity_map = {

@@ -117,6 +117,7 @@ def driver_prediction(df):
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Accident Severity Prediction 🚗", size=30)
+    center_text("By : Syahirah binti Shamsudin (0137475)", size=20)
 
     with st.form("driver_form", clear_on_submit=False):
         target = "Accident Severity"
@@ -328,6 +329,7 @@ def government_prediction(df):
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Economic Loss Prediction💰", size=30)
+    center_text("By : Syahirah binti Shamsudin (0137475)", size=20)
 
     with st.form("government_form", clear_on_submit=False):
         # Features expected by the model
@@ -479,6 +481,7 @@ def responder_prediction(df):
     center_text("", size=20)
     center_text("🚦Traffic Accident Risk Dashboard", size=50)
     center_text("Emergency Response Time Prediction 🚑", size=30)
+    center_text("By : Syahirah binti Shamsudin (0137475)", size=20)
     
     user_input = {}
     # -------------------------
