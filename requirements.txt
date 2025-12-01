@@ -1,0 +1,9 @@
+requirements
+
+streamlit 
+pandas 
+squarify
+numpy 
+plotly.graph_objects 
+joblib
+altair 
