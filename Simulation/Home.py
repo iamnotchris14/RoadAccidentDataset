@@ -104,7 +104,7 @@ if role == "Driver":
             data = f.read()
         return base64.b64encode(data).decode()
 
-    gif_data = load_gif("images/omw.gif")
+    gif_data = load_gif("Simulation/images/omw.gif")
 
     st.markdown(
         f"""
@@ -399,7 +399,7 @@ if role == "Driver":
         f"- In conditions like **{driver_risky_weather}**, add extra following distance and reduce your speed slightly. For example, dont tailgate and be too close to the car in front of you.\n"
         "- If your age group appears often in the chart above, use that as a signal to be extra intentional about safe driving habits."
     )
-    st.image("images/friends-hug.gif", use_container_width=True)
+    st.image("Simulation/images/friends-hug.gif", use_container_width=True)
     st.markdown(
     "**❤️ Why this matters:**\n"
     "Every decision you make on the road—whether to accelerate, check your phone, or push through fatigue—"
@@ -419,7 +419,7 @@ elif role == "Government":
             data = f.read()
         return base64.b64encode(data).decode()
 
-    gif_data = load_gif("images/government.gif")
+    gif_data = load_gif("Simulation/images/government.gif")
 
     st.markdown(
         f"""
@@ -632,7 +632,7 @@ elif role == "Emergency Responder":
             data = f.read()
         return base64.b64encode(data).decode()
 
-    gif_data = load_gif("images/ambulance.gif")
+    gif_data = load_gif("Simulation/images/ambulance.gif")
 
     st.markdown(
         f"""
