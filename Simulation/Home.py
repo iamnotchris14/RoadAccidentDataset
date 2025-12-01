@@ -538,7 +538,7 @@ elif role == "Government":
     It was jointly organized by the **Asian Development Bank (ADB)**, **Global Road Safety Partnership (GRSP)**, **Asia-Pacific Road Safety Observatory (APRSO)**, **Bridgestone Asia Pacific**, and the **International Road Assessment Programme (iRAP)**.
     """)
 
-    st.image("images/governmentnews.jpg", use_container_width=False)
+    st.image("Simulation/images/governmentnews.jpg", use_container_width=False)
 
     st.markdown("""
     Attended by 260+ participants from more than 20 countries, the Asia Pacific Road Safety Conference brought together representatives from government, international organizations, the private sector, academia, and civil society. The 3-day event explored how investing in road safety can support sustainable transport, public health, and economic development.
@@ -742,7 +742,7 @@ elif role == "Emergency Responder":
     Emergency medical services (EMS) have several responsibilities at the crash site, whether involving an automobile, aircraft, boat, or other types of vehicles. The key responsibilities of EMS covered in this resource include scene safety evaluation, triage coordination, prehospital medical treatment, and crash site investigation.
     """)
 
-    st.image("images/crashsites.jpg", use_container_width=False)
+    st.image("Simulation/images/crashsites.jpg", use_container_width=False)
 
     with st.expander("Issues of Concern"):
         st.markdown("""
