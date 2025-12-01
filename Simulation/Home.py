@@ -235,8 +235,8 @@ if role == "Driver":
     Despite the increase in total fatalities, **exposure levels** (vehicles, drivers, miles driven) have changed so dramatically that the **risk per mile, per driver, and per vehicle has dropped significantly** over time.
     """)
 
-    df = pd.read_csv("deaths-and-population-ra.csv")
-    df2 = pd.read_csv("deaths-and-mv-rates-1913.csv")
+    df = pd.read_csv("Simulation/deaths-and-population-ra.csv")
+    df2 = pd.read_csv("Simulation/deaths-and-mv-rates-1913.csv")
 
 #------------------------------------------death&poprates------------------------------------------------------------------------------
     fig = go.Figure()
