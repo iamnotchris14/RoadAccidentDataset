@@ -416,7 +416,7 @@ def government_prediction(df):
                 if col in encoders:
                     input_df[col] = encoders[col].transform(input_df[col])
             input_df = input_df[features]
-            pred = government_model.predict(input_df)[0]
+            pred = model.predict(input_df)[0]
             st.subheader(f"Estimated Economic Loss per Accident: **${pred:,.2f}💸**")
             # -------------------------
             # Scenario-based Government Insights
