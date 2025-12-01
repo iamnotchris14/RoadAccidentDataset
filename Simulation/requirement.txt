@@ -1,0 +1,14 @@
+requirement
+
+streamlit 
+pandas 
+matplotlib.pyplot 
+squarify
+numpy 
+plotly.graph_objects 
+joblib
+math
+base64
+altair 
+plotly.express 
+matplotlib.patches
